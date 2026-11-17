@@ -22,19 +22,18 @@ def _client():
         _client_key = key
     return _client_instance
 
-_collection_instance = None
-_collection_path = None
+_chroma_client = None
+_chroma_path = None
 
 def _collection():
-    global _collection_instance, _collection_path
+    global _chroma_client, _chroma_path
     path = current_app.config.get("CHROMA_PATH", "./chroma_db")
-    if _collection_instance is None or _collection_path != path:
-        chroma = chromadb.PersistentClient(path=path)
-        _collection_instance = chroma.get_or_create_collection(
-            name="temaniresearch_chunks", metadata={"hnsw:space": "cosine"}
-        )
-        _collection_path = path
-    return _collection_instance
+    if _chroma_client is None or _chroma_path != path:
+        _chroma_client = chromadb.PersistentClient(path=path)
+        _chroma_path = path
+    return _chroma_client.get_or_create_collection(
+        name="temaniresearch_chunks", metadata={"hnsw:space": "cosine"}
+    )
 
 def extract_pdf_pages(pdf_path):
     try:
